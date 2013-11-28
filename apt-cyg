@@ -75,7 +75,7 @@ function findworkspace()
   
   mirror=ftp://mirror.mcs.anl.gov/pub/cygwin
   cache=/setup
-  
+  
   # work wherever setup worked last, if possible
   
   if test -e /etc/setup/last-cache
@@ -358,7 +358,7 @@ case "$command" in
     fi
     
     echo "Unpacking..."
-    cat $file | bunzip2 | tar > "/etc/setup/$pkg.lst" xvf - -C /
+    { bunzip2 -c $file || xz -dc $file; } | tar > "/etc/setup/$pkg.lst" xvf - -C /
     gzip -f "/etc/setup/$pkg.lst"
     cd ../..
     
