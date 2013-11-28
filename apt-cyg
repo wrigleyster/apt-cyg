@@ -72,10 +72,11 @@ function version()
 function findworkspace()
 {
   # default working directory and mirror
+  arch=$(arch|sed -e 's/i686/x86')
   
   mirror=ftp://mirror.mcs.anl.gov/pub/cygwin
   cache=/setup
-  
+  
   # work wherever setup worked last, if possible
   
   if test -e /etc/setup/last-cache
@@ -88,10 +89,10 @@ function findworkspace()
   then
     mirror="`head -1 /etc/setup/last-mirror`"
   fi
-  mirrordir="`echo "$mirror" | sed -e "s/:/%3a/g" -e "s:/:%2f:g"`"
+  mirrordir="`echo "$mirror/$arch" | sed -e "s/:/%3a/g" -e "s:/:%2f:g"`"
   
   echo Working directory is $cache
-  echo Mirror is $mirror
+  echo Mirror is $mirror/$arch
   mkdir -p "$cache/$mirrordir"
   cd "$cache/$mirrordir"
 }
@@ -103,14 +104,14 @@ function getsetup()
   then
     touch setup.ini
     mv setup.ini setup.ini-save
-    wget -N $mirror/setup.bz2
+    wget -N $mirror/$arch/setup.bz2
     if test -e setup.bz2 && test $? -eq 0
     then
       bunzip2 setup.bz2
       mv setup setup.ini
       echo Updated setup.ini
     else
-      wget -N $mirror/setup.ini
+      wget -N $mirror/$arch/setup.ini
       if test -e setup.ini && test $? -eq 0
       then
         echo Updated setup.ini
@@ -351,7 +352,7 @@ case "$command" in
     # check the md5
     digest=`cat "desc" | awk '/^install: / { print $4; exit }'` 
     digactual=`md5sum $file | awk '{print $1}'`
-    if ! test $digest = $digactual
+    if ! test "$digest"z = "$digactual"z
     then
       echo MD5 sum did not match, exiting
       exit 1
